@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.soundconverter.controllers.MainController"
+            prefHeight="700.0" prefWidth="1000.0">
+
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="Import Audio File" onAction="#handleImportAudio"/>
+                <MenuItem text="Exit" onAction="#handleExit"/>
+            </Menu>
+            <Menu text="Tools">
+                <MenuItem text="Setup Whisper" onAction="#handleSetupWhisper"/>
+                <MenuItem text="Setup FFmpeg" onAction="#handleSetupFFmpeg"/>
+            </Menu>
+            <Menu text="Help">
+                <MenuItem text="About" onAction="#handleAbout"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <!-- Audio Files Tab -->
+            <Tab text="Audio Files">
+                <BorderPane>
+                    <top>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <Button text="Import Audio" onAction="#handleImportAudio"/>
+                            <Label text="Language:"/>
+                            <ComboBox fx:id="languageComboBox" prefWidth="150"/>
+                            <Label text="Segment Length (seconds):"/>
+                            <TextField fx:id="segmentLengthField" prefWidth="80" text="0"/>
+                            <Button text="Analyze with AI" onAction="#handleAnalyzeAudio"/>
+                            <Button text="Remove" onAction="#handleRemoveAudio"/>
+                        </HBox>
+                    </top>
+                    <center>
+                        <SplitPane dividerPositions="0.3">
+                            <!-- Audio Files List -->
+                            <VBox spacing="5">
+                                <padding>
+                                    <Insets top="5" right="5" bottom="5" left="5"/>
+                                </padding>
+                                <Label text="Audio Files:"/>
+                                <ListView fx:id="audioFilesList" VBox.vgrow="ALWAYS"/>
+                            </VBox>
+                            
+                            <!-- Audio Segments -->
+                            <VBox spacing="5">
+                                <padding>
+                                    <Insets top="5" right="5" bottom="5" left="5"/>
+                                </padding>
+                                <Label text="Audio Segments:"/>
+                                <TableView fx:id="segmentsTable" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="startTimeColumn" text="Start Time" prefWidth="100"/>
+                                        <TableColumn fx:id="endTimeColumn" text="End Time" prefWidth="100"/>
+                                        <TableColumn fx:id="textColumn" text="Text" prefWidth="300"/>
+                                    </columns>
+                                </TableView>
+                                
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <padding>
+                                        <Insets top="10" right="10" bottom="10" left="10"/>
+                                    </padding>
+                                    <Button text="Play Segment" onAction="#handlePlaySegment"/>
+                                    <Button text="Edit Segment" onAction="#handleEditSegment"/>
+                                    <Button text="Add to Merge" onAction="#handleAddToMerge"/>
+                                </HBox>
+                            </VBox>
+                        </SplitPane>
+                    </center>
+                </BorderPane>
+            </Tab>
+            
+            <!-- Merge Audio Tab -->
+            <Tab text="Merge Audio">
+                <BorderPane>
+                    <top>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <Button text="Create New Merge" onAction="#handleNewMerge"/>
+                            <Button text="Merge Audio" onAction="#handleMergeAudio"/>
+                            <Button text="Save Merge" onAction="#handleSaveMerge"/>
+                            <Button text="Load Merge" onAction="#handleLoadMerge"/>
+                            <Button text="Remove Segment" onAction="#handleRemoveMergeSegment"/>
+                        </HBox>
+                    </top>
+                    <center>
+                        <VBox spacing="5">
+                            <padding>
+                                <Insets top="5" right="5" bottom="5" left="5"/>
+                            </padding>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Output Filename:"/>
+                                <TextField fx:id="mergeFilenameField" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            
+                            <Label text="Segments to Merge:"/>
+                            <TableView fx:id="mergeSegmentsTable" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="mergeFileColumn" text="Source File" prefWidth="200"/>
+                                    <TableColumn fx:id="mergeStartColumn" text="Start Time" prefWidth="100"/>
+                                    <TableColumn fx:id="mergeEndColumn" text="End Time" prefWidth="100"/>
+                                    <TableColumn fx:id="mergeTextColumn" text="Text" prefWidth="300"/>
+                                </columns>
+                            </TableView>
+                            
+                            <HBox spacing="10" alignment="CENTER">
+                                <Button text="Move Up" onAction="#handleMoveUp"/>
+                                <Button text="Move Down" onAction="#handleMoveDown"/>
+                                <Button text="Preview" onAction="#handlePreview"/>
+                            </HBox>
+                        </VBox>
+                    </center>
+                </BorderPane>
+            </Tab>
+        </TabPane>
+    </center>
+    
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #f0f0f0;">
+            <padding>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </padding>
+            <Label fx:id="statusLabel" text="Ready"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ProgressBar fx:id="progressBar" progress="0.0" visible="false" prefWidth="200"/>
+        </HBox>
+    </bottom>
+</BorderPane> 
