@@ -25,11 +25,11 @@ public class AudioProcessingService {
     private static AudioProcessingService instance;
     
     private AudioProcessingService() {
-        // Create output directory if it doesn't exist
+        // Tạo thư mục output nếu không tồn tại
         try {
             Files.createDirectories(Paths.get(OUTPUT_DIR));
         } catch (IOException e) {
-            System.err.println("Failed to create output directory: " + e.getMessage());
+            System.err.println("Không thể tạo thư mục output: " + e.getMessage());
         }
     }
     
@@ -55,19 +55,19 @@ public class AudioProcessingService {
     }
     
     /**
-     * Extract a segment from an audio file
-     * @param sourceFile The source audio file
-     * @param startTime Start time in seconds
-     * @param endTime End time in seconds
-     * @return Path to the extracted segment file
+     * Trích xuất một đoạn từ file âm thanh
+     * @param sourceFile File âm thanh nguồn
+     * @param startTime Thời gian bắt đầu tính bằng giây
+     * @param endTime Thời gian kết thúc tính bằng giây
+     * @return Đường dẫn đến file đoạn đã trích xuất
      */
     public String extractSegment(String sourceFile, int startTime, int endTime) throws IOException {
-        // Ensure output directory exists
+        // Đảm bảo thư mục output tồn tại
         File outputDirFile = new File(OUTPUT_DIR);
         if (!outputDirFile.exists()) {
             boolean created = outputDirFile.mkdirs();
             if (!created) {
-                throw new IOException("Failed to create output directory: " + OUTPUT_DIR);
+                throw new IOException("Không thể tạo thư mục output: " + OUTPUT_DIR);
             }
         }
         
@@ -85,7 +85,7 @@ public class AudioProcessingService {
         command.add("copy");
         command.add(outputFilename);
         
-        System.out.println("Executing FFmpeg extract command: " + String.join(" ", command));
+        System.out.println("Đang chạy lệnh FFmpeg trích xuất: " + String.join(" ", command));
         
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
@@ -104,58 +104,58 @@ public class AudioProcessingService {
             boolean completed = process.waitFor(30, TimeUnit.SECONDS);
             if (!completed) {
                 process.destroyForcibly();
-                throw new IOException("FFmpeg extract process timed out");
+                throw new IOException("Quá trình FFmpeg trích xuất đã hết thời gian chờ");
             }
             
             int exitCode = process.exitValue();
             if (exitCode != 0) {
-                throw new IOException("FFmpeg extract process failed with exit code " + exitCode + ":\n" + output);
+                throw new IOException("Quá trình FFmpeg trích xuất thất bại với mã lỗi " + exitCode + ":\n" + output);
             }
         } catch (InterruptedException e) {
-            throw new IOException("FFmpeg extract process interrupted: " + e.getMessage());
+            throw new IOException("Quá trình FFmpeg trích xuất bị gián đoạn: " + e.getMessage());
         }
         
         File outputFile = new File(outputFilename);
         if (!outputFile.exists()) {
-            throw new IOException("Failed to extract segment - output file not created");
+            throw new IOException("Không thể trích xuất đoạn - file output không được tạo");
         }
         
         if (outputFile.length() == 0) {
-            throw new IOException("Failed to extract segment - output file is empty");
+            throw new IOException("Không thể trích xuất đoạn - file output rỗng");
         }
         
         return outputFilename;
     }
     
     /**
-     * Merge segments from multiple audio files
-     * @param mergedAudio The merged audio object containing segments to merge
-     * @param audioFiles List of audio files with their information
-     * @return Path to the merged audio file
+     * Trộn các đoạn từ nhiều file âm thanh
+     * @param mergedAudio Đối tượng âm thanh đã trộn chứa các đoạn cần trộn
+     * @param audioFiles Danh sách các file âm thanh với thông tin của chúng
+     * @return Đường dẫn đến file âm thanh đã trộn
      */
     public String mergeSegments(MergedAudio mergedAudio, List<AudioFile> audioFiles) throws IOException {
-        // Get the user-specified output path
+        // Lấy đường dẫn output do người dùng chỉ định
         String outputPath = mergedAudio.getFilePath();
         
-        // Create a temporary directory for the segment files
+        // Tạo thư mục tạm cho các file đoạn
         String tempDirName = "temp_" + UUID.randomUUID().toString();
         File tempDir = new File(OUTPUT_DIR, tempDirName);
         if (!tempDir.exists()) {
             boolean created = tempDir.mkdirs();
             if (!created) {
-                throw new IOException("Failed to create temporary directory: " + tempDir.getAbsolutePath());
+                throw new IOException("Không thể tạo thư mục tạm: " + tempDir.getAbsolutePath());
             }
         }
         
-        // Create a file list for FFmpeg
+        // Tạo danh sách file cho FFmpeg
         StringBuilder fileList = new StringBuilder();
         List<String> extractedFiles = new ArrayList<>();
         
         try {
-            // Extract each segment
+            // Trích xuất từng đoạn
             int segmentIndex = 0;
             for (MergeSegment segment : mergedAudio.getSegments()) {
-                // Find the source audio file
+                // Tìm file âm thanh nguồn
                 AudioFile sourceFile = null;
                 for (AudioFile file : audioFiles) {
                     if (file.getId() == segment.getSourceFileId()) {
@@ -165,25 +165,25 @@ public class AudioProcessingService {
                 }
                 
                 if (sourceFile == null) {
-                    throw new IOException("Source file not found for segment");
+                    throw new IOException("Không tìm thấy file nguồn cho đoạn");
                 }
                 
-                System.out.println("Processing segment from: " + sourceFile.getFilePath());
-                System.out.println("Start time: " + segment.getStartTime() + ", End time: " + segment.getEndTime());
+                System.out.println("Đang xử lý đoạn từ: " + sourceFile.getFilePath());
+                System.out.println("Thời gian bắt đầu: " + segment.getStartTime() + ", Thời gian kết thúc: " + segment.getEndTime());
                 
-                // Extract the segment
+                // Trích xuất đoạn
                 String segmentFile = extractSegment(
                         sourceFile.getFilePath(),
-                        segment.getStartTime() / 1000, // Convert ms to seconds
-                        segment.getEndTime() / 1000    // Convert ms to seconds
+                        segment.getStartTime() / 1000, // Chuyển ms sang giây
+                        segment.getEndTime() / 1000    // Chuyển ms sang giây
                 );
                 
-                // Rename the segment file to ensure correct order
+                // Đổi tên file đoạn để đảm bảo thứ tự đúng
                 File orderedSegmentFile = new File(tempDir, String.format("%03d.mp3", segmentIndex));
                 Files.move(Paths.get(segmentFile), orderedSegmentFile.toPath(), 
                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 
-                // Add to file list - use absolute path with proper escaping
+                // Thêm vào danh sách file - sử dụng đường dẫn tuyệt đối với escape đúng
                 String escapedPath = orderedSegmentFile.getAbsolutePath().replace("\\", "/");
                 fileList.append("file '").append(escapedPath).append("'\n");
                 extractedFiles.add(orderedSegmentFile.getAbsolutePath());
@@ -191,36 +191,33 @@ public class AudioProcessingService {
                 segmentIndex++;
             }
             
-            // Write the file list
+            // Ghi danh sách file
             File fileListFile = new File(tempDir, "list.txt");
             Files.write(fileListFile.toPath(), fileList.toString().getBytes());
             
-            // Verify file list was created
+            // Xác minh danh sách file đã được tạo
             if (!fileListFile.exists() || fileListFile.length() == 0) {
-                throw new IOException("Failed to create file list for FFmpeg");
+                throw new IOException("Không thể tạo danh sách file cho FFmpeg");
             }
             
-            System.out.println("File list created at: " + fileListFile.getAbsolutePath());
-            System.out.println("File list contents:\n" + fileList.toString());
+            // Sử dụng đường dẫn output do người dùng chỉ định trực tiếp
             
-            // Use the user-specified output path directly
+            // Trộn bằng FFmpeg
+            List<String> mergeCommand = new ArrayList<>();
+            mergeCommand.add(FFMPEG_EXE);
+            mergeCommand.add("-f");
+            mergeCommand.add("concat");
+            mergeCommand.add("-safe");
+            mergeCommand.add("0");
+            mergeCommand.add("-i");
+            mergeCommand.add(fileListFile.getAbsolutePath());
+            mergeCommand.add("-c");
+            mergeCommand.add("copy");
+            mergeCommand.add(outputPath);
             
-            // Merge using FFmpeg
-            List<String> command = new ArrayList<>();
-            command.add(FFMPEG_EXE);
-            command.add("-f");
-            command.add("concat");
-            command.add("-safe");
-            command.add("0");
-            command.add("-i");
-            command.add(fileListFile.getAbsolutePath());
-            command.add("-c");
-            command.add("copy");
-            command.add(outputPath);
+            System.out.println("Đang chạy lệnh FFmpeg trộn: " + String.join(" ", mergeCommand));
             
-            System.out.println("Executing FFmpeg command: " + String.join(" ", command));
-            
-            ProcessBuilder pb = new ProcessBuilder(command);
+            ProcessBuilder pb = new ProcessBuilder(mergeCommand);
             pb.redirectErrorStream(true);
             Process process = pb.start();
             
@@ -229,28 +226,38 @@ public class AudioProcessingService {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     output.append(line).append("\n");
-                    System.out.println("[FFmpeg] " + line);
+                    System.out.println("[FFmpeg Merge] " + line);
                 }
             }
             
             try {
-                int exitCode = process.waitFor();
+                boolean completed = process.waitFor(60, TimeUnit.SECONDS);
+                if (!completed) {
+                    process.destroyForcibly();
+                    throw new IOException("Quá trình FFmpeg trộn đã hết thời gian chờ");
+                }
+                
+                int exitCode = process.exitValue();
                 if (exitCode != 0) {
-                    throw new IOException("FFmpeg process failed with exit code " + exitCode + ":\n" + output);
+                    throw new IOException("Quá trình FFmpeg trộn thất bại với mã lỗi " + exitCode + ":\n" + output);
                 }
-                
-                // Verify the output file was created
-                File outputFile = new File(outputPath);
-                if (!outputFile.exists() || outputFile.length() == 0) {
-                    throw new IOException("Output file was not created or is empty: " + outputPath);
-                }
-                
-                return outputPath;
             } catch (InterruptedException e) {
-                throw new IOException("FFmpeg process interrupted: " + e.getMessage());
+                throw new IOException("Quá trình FFmpeg trộn bị gián đoạn: " + e.getMessage());
             }
+            
+            // Xác minh file output đã được tạo
+            File mergedFile = new File(outputPath);
+            if (!mergedFile.exists()) {
+                throw new IOException("Không thể trộn các đoạn - file output không được tạo");
+            }
+            
+            if (mergedFile.length() == 0) {
+                throw new IOException("Không thể trộn các đoạn - file output rỗng");
+            }
+            
+            return outputPath;
         } finally {
-            // Clean up temp files
+            // Dọn dẹp file tạm
             cleanupTempDir(tempDir.getAbsolutePath());
         }
     }
@@ -266,12 +273,12 @@ public class AudioProcessingService {
             }
             dir.delete();
         } catch (Exception e) {
-            System.err.println("Error cleaning up temp directory: " + e.getMessage());
+            System.err.println("Lỗi khi dọn dẹp thư mục tạm: " + e.getMessage());
         }
     }
     
     /**
-     * Format time in seconds to HH:MM:SS.mmm format for FFmpeg
+     * Định dạng thời gian theo giây sang định dạng HH:MM:SS.mmm cho FFmpeg
      */
     private String formatTime(int seconds) {
         int hours = seconds / 3600;
@@ -281,7 +288,7 @@ public class AudioProcessingService {
     }
     
     /**
-     * Format time in milliseconds to HH:MM:SS.mmm format for FFmpeg
+     * Định dạng thời gian theo mili giây sang định dạng HH:MM:SS.mmm cho FFmpeg
      */
     private String formatTimeWithMs(int milliseconds) {
         int totalSeconds = milliseconds / 1000;
@@ -293,7 +300,7 @@ public class AudioProcessingService {
     }
     
     /**
-     * Get the duration of an audio file in seconds
+     * Lấy độ dài của file âm thanh theo giây
      */
     public int getAudioDuration(String filePath) throws IOException {
         List<String> command = new ArrayList<>();
@@ -321,14 +328,14 @@ public class AudioProcessingService {
         try {
             process.waitFor();
         } catch (InterruptedException e) {
-            throw new IOException("FFprobe process interrupted: " + e.getMessage());
+            throw new IOException("Quá trình FFprobe bị gián đoạn: " + e.getMessage());
         }
         
         try {
             float duration = Float.parseFloat(output.toString().trim());
             return (int) Math.ceil(duration);
         } catch (NumberFormatException e) {
-            throw new IOException("Failed to parse audio duration: " + output);
+            throw new IOException("Không thể phân tích độ dài âm thanh: " + output);
         }
     }
 } 

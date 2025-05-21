@@ -1,0 +1,182 @@
+# SOUND CONVERTER - HƯỚNG DẪN SỬ DỤNG
+
+## Khởi động ứng dụng
+
+1. Từ thư mục gốc của dự án, chạy lệnh:
+   ```bash
+   java -jar target/SoundConverterOfficial-1.0-SNAPSHOT.jar
+   ```
+
+2. Hoặc tạo file batch để chạy dễ dàng hơn (run.bat):
+   ```batch
+   @echo off
+   java -jar target/SoundConverterOfficial-1.0-SNAPSHOT.jar
+   pause
+   ```
+
+3. Đảm bảo cấu trúc thư mục như sau trước khi chạy:
+   ```
+   SoundConverterOfficial/
+   ├── models/
+   │   ├── ggml-base-q8_0.bin    # Model đa ngôn ngữ
+   │   └── ggml-tiny.en.bin      # Model tiếng Anh
+   ├── lib/
+   │   ├── whisper-cli.exe
+   │   ├── ggml.dll
+   │   ├── whisper.dll
+   │   └── [Các DLL khác]
+   ├── target/
+   │   └── SoundConverterOfficial-1.0-SNAPSHOT.jar
+   ```
+
+## Hướng dẫn sử dụng chi tiết
+
+### 1. Nhập file âm thanh
+
+1. Khởi động ứng dụng Sound Converter
+2. Nhấn nút "Import" hoặc sử dụng phím tắt **Ctrl+I** để chọn file âm thanh
+3. Ứng dụng hỗ trợ các định dạng file:
+   - MP3 (.mp3)
+   - WAV (.wav)
+   - OGG (.ogg)
+   - AAC (.aac)
+4. File âm thanh sau khi nhập sẽ xuất hiện trong danh sách bên trái màn hình
+
+### 2. Phân tích âm thanh bằng AI
+
+1. Chọn file âm thanh từ danh sách bên trái
+2. Trong phần "Analysis Settings":
+   - Chọn ngôn ngữ từ danh sách thả xuống (mặc định là tiếng Việt)
+   - Nhập độ dài đoạn phân tích (tính bằng giây, 0 = tự động)
+3. Nhấn nút "Analyze" hoặc sử dụng phím tắt **Ctrl+A** để bắt đầu phân tích
+4. Quá trình phân tích có thể mất từ vài giây đến vài phút tùy thuộc vào:
+   - Độ dài của file âm thanh
+   - Model AI được sử dụng
+   - Cấu hình máy tính
+5. Sau khi phân tích hoàn tất, các đoạn âm thanh sẽ hiển thị trong bảng chính
+
+### 3. Chỉnh sửa văn bản phiên âm
+
+1. Chọn một đoạn âm thanh trong bảng kết quả phân tích
+2. Nhấn đúp chuột vào cột "Text" để chỉnh sửa hoặc sử dụng phím tắt **Ctrl+E** 
+3. Nhập văn bản mới và nhấn Enter để lưu
+4. Văn bản đã sửa sẽ được lưu vào cơ sở dữ liệu
+
+### 4. Tạo file âm thanh mới từ các đoạn
+
+1. Chọn các đoạn âm thanh muốn trộn từ bảng kết quả phân tích
+   - Giữ Ctrl để chọn nhiều đoạn không liền kề
+   - Giữ Shift để chọn nhiều đoạn liền kề
+2. Nhấn nút "Add to Merge" để thêm vào danh sách trộn
+3. Trong phần "Merge Settings":
+   - Điều chỉnh thứ tự các đoạn bằng nút "Move Up" và "Move Down"
+   - Xóa đoạn không mong muốn bằng nút "Remove"
+   - Nhập tên file kết quả vào ô "Output Filename"
+4. Nhấn nút "Preview" hoặc sử dụng phím tắt **Ctrl+P** để nghe thử kết quả
+5. Nhấn nút "Merge" hoặc sử dụng phím tắt **Ctrl+M** để tạo file âm thanh mới
+6. Chọn vị trí lưu file kết quả trong hộp thoại xuất hiện
+
+### 5. Lưu và tải cấu hình trộn
+
+1. Sau khi đã tạo danh sách các đoạn âm thanh cần trộn:
+   - Nhấn nút "Save Merge" hoặc sử dụng phím tắt **Ctrl+S** để lưu cấu hình
+   - Nhập tên cho cấu hình và xác nhận
+2. Để tải lại cấu hình đã lưu:
+   - Nhấn nút "Load Merge" hoặc sử dụng phím tắt **Ctrl+L**
+   - Chọn cấu hình muốn tải từ danh sách
+3. Cấu hình đã lưu sẽ bao gồm:
+   - Các đoạn âm thanh đã chọn
+   - Thứ tự của các đoạn
+   - Tên file đầu ra
+
+### 6. Điều chỉnh model AI Whisper
+
+Sound Converter cho phép bạn thay đổi model AI Whisper để phù hợp với nhu cầu sử dụng:
+
+1. **Các model có sẵn trong ứng dụng**:
+
+   - `ggml-tiny.en.bin`: Model nhỏ, chỉ hỗ trợ tiếng Anh, tốc độ nhanh, độ chính xác thấp hơn
+   - `ggml-base-q8_0.bin`: Model đa ngôn ngữ cơ bản, hỗ trợ nhiều ngôn ngữ, cân bằng giữa tốc độ và độ chính xác
+
+2. **Để sử dụng model khác**:
+   - Tải model mong muốn từ [trang GitHub của Whisper CPP](https://github.com/ggerganov/whisper.cpp/blob/master/models/README.md)
+   - Đặt file model vào thư mục `models/`
+   - Mở file `src/main/java/com/soundconverter/ai/WhisperService.java`
+   - Cập nhật đường dẫn model trong code
+
+3. **Các model khuyến nghị**:
+
+   - Cho tiếng Việt: `ggml-medium.bin` hoặc `ggml-large.bin` (độ chính xác cao nhưng yêu cầu nhiều tài nguyên)
+   - Cho tiếng Anh: `ggml-base.en.bin` hoặc `ggml-small.en.bin` (cân bằng giữa tốc độ và độ chính xác)
+   - Cho máy tính có cấu hình thấp: `ggml-tiny.bin` hoặc `ggml-tiny.en.bin` (tốc độ nhanh, yêu cầu ít tài nguyên)
+
+## Các phím tắt và thao tác nhanh
+
+- **Ctrl+I**: Nhập file âm thanh
+- **Ctrl+A**: Phân tích file âm thanh đã chọn
+- **Ctrl+E**: Chỉnh sửa đoạn âm thanh đã chọn
+- **Ctrl+M**: Trộn các đoạn âm thanh đã thêm vào danh sách
+- **Ctrl+S**: Lưu cấu hình trộn hiện tại
+- **Ctrl+L**: Tải cấu hình trộn đã lưu
+- **Ctrl+P**: Xem trước kết quả trộn âm thanh
+
+## Xử lý sự cố khi sử dụng
+
+### Lỗi "Invalid memory access" khi phân tích âm thanh
+
+Nếu gặp lỗi này, có thể do:
+
+1. **Vấn đề tương thích 32-bit/64-bit**:
+   - Kiểm tra JVM đang chạy ở chế độ 64-bit: `java -version`
+   - Đảm bảo Whisper DLL và models là phiên bản 64-bit nếu dùng JVM 64-bit
+
+2. **Giải pháp sửa lỗi**:
+   - Mở file `src/main/java/com/soundconverter/ai/WhisperService.java`
+   - Tìm đến phương thức khởi tạo và đảm bảo các tùy chọn GPU bị vô hiệu hóa:
+   ```java
+   params.setCudaDeviceIndex(-1); // Vô hiệu hóa GPU
+   params.setUseCuda(false);      // Không sử dụng CUDA
+   ```
+   - Thử chuyển sang model nhỏ hơn như `ggml-tiny.en.bin`
+
+3. **Các cài đặt khác để thử nghiệm**:
+   - Giảm kích thước đoạn phân tích (ví dụ: 10-30 giây)
+   - Đảm bảo file âm thanh không bị hỏng
+   - Kiểm tra model AI đã được đặt đúng vị trí
+
+### Lỗi khi trộn âm thanh
+
+1. **Kiểm tra FFmpeg**:
+   - Kiểm tra FFmpeg đã được cài đặt đúng cách trong `src/main/resources/ffmpeg`
+   - Đảm bảo cả hai file `ffmpeg.exe` và `ffprobe.exe` đều có mặt
+
+2. **Vấn đề về đường dẫn**:
+   - Đảm bảo đường dẫn lưu file không chứa ký tự đặc biệt hoặc tiếng Việt
+   - Kiểm tra đủ quyền ghi vào thư mục đích
+
+3. **Vấn đề về file**:
+   - Đảm bảo các đoạn âm thanh không bị hỏng
+   - Thử trộn số lượng ít đoạn hơn
+
+### Lỗi khi sử dụng cơ sở dữ liệu
+
+1. **Kiểm tra kết nối**:
+   - Đảm bảo MySQL đang chạy
+   - Kiểm tra thông tin kết nối trong file `config.properties`
+
+2. **Thử khởi động lại**:
+   - Khởi động lại MySQL
+   - Khởi động lại ứng dụng Sound Converter
+
+## Thông tin thêm
+
+Sound Converter sử dụng các công nghệ sau:
+
+- **JavaFX**: Xây dựng giao diện người dùng
+- **MySQL**: Lưu trữ thông tin về file âm thanh và đoạn phân tích
+- **Whisper CPP**: Mô hình AI phiên âm giọng nói
+- **FFmpeg**: Xử lý và trộn file âm thanh
+
+## Liên hệ và hỗ trợ
+
+Nếu bạn gặp vấn đề hoặc có câu hỏi, vui lòng tạo issue trên GitHub hoặc liên hệ qua email: nguyenvinh19525@gmail.com 

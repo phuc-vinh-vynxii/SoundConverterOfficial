@@ -24,7 +24,7 @@ public class DatabaseConnection {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             initializeDatabase();
         } catch (SQLException e) {
-            System.err.println("Database connection error: " + e.getMessage());
+            System.err.println("Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
         }
     }
     
@@ -32,7 +32,7 @@ public class DatabaseConnection {
         Properties props = new Properties();
         try (InputStream input = getClass().getResourceAsStream(CONFIG_FILE)) {
             if (input == null) {
-                System.err.println("Sorry, unable to find " + CONFIG_FILE);
+                System.err.println("Không thể tìm thấy file " + CONFIG_FILE);
                 // Sử dụng giá trị mặc định nếu không tìm thấy file cấu hình
                 DB_URL = "jdbc:mysql://localhost:3306/soundconverter?createDatabaseIfNotExist=true";
                 DB_USER = "root";
@@ -49,7 +49,7 @@ public class DatabaseConnection {
             DB_PASSWORD = props.getProperty("db.password");
             
         } catch (IOException ex) {
-            System.err.println("Error loading configuration: " + ex.getMessage());
+            System.err.println("Lỗi khi đọc file cấu hình: " + ex.getMessage());
             // Sử dụng giá trị mặc định nếu có lỗi
             DB_URL = "jdbc:mysql://localhost:3306/soundconverter?createDatabaseIfNotExist=true";
             DB_USER = "root";
@@ -70,7 +70,7 @@ public class DatabaseConnection {
 
     private void initializeDatabase() {
         try (Statement stmt = connection.createStatement()) {
-            // Create tables if they don't exist
+            // Tạo các bảng nếu chúng chưa tồn tại
             String createAudioFilesTable = "CREATE TABLE IF NOT EXISTS audio_files (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
                     "file_name VARCHAR(255) NOT NULL," +
@@ -80,8 +80,8 @@ public class DatabaseConnection {
             String createAudioSegmentsTable = "CREATE TABLE IF NOT EXISTS audio_segments (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
                     "file_id INT NOT NULL," +
-                    "start_time INT NOT NULL," + // Stores milliseconds
-                    "end_time INT NOT NULL," +   // Stores milliseconds
+                    "start_time INT NOT NULL," + // Lưu trữ mili giây
+                    "end_time INT NOT NULL," +   // Lưu trữ mili giây
                     "text TEXT," +
                     "FOREIGN KEY (file_id) REFERENCES audio_files(id) ON DELETE CASCADE" +
                     ")";
@@ -96,8 +96,8 @@ public class DatabaseConnection {
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
                     "merged_id INT NOT NULL," +
                     "source_file_id INT NOT NULL," +
-                    "start_time INT NOT NULL," + // Stores milliseconds
-                    "end_time INT NOT NULL," +   // Stores milliseconds
+                    "start_time INT NOT NULL," + // Lưu trữ mili giây
+                    "end_time INT NOT NULL," +   // Lưu trữ mili giây
                     "sequence_order INT NOT NULL," +
                     "FOREIGN KEY (merged_id) REFERENCES merged_audio(id) ON DELETE CASCADE," +
                     "FOREIGN KEY (source_file_id) REFERENCES audio_files(id)" +
@@ -109,7 +109,7 @@ public class DatabaseConnection {
             stmt.executeUpdate(createMergedSegmentsTable);
             
         } catch (SQLException e) {
-            System.err.println("Error initializing database: " + e.getMessage());
+            System.err.println("Lỗi khi khởi tạo cơ sở dữ liệu: " + e.getMessage());
         }
     }
     
@@ -119,7 +119,7 @@ public class DatabaseConnection {
                 connection.close();
             }
         } catch (SQLException e) {
-            System.err.println("Error closing connection: " + e.getMessage());
+            System.err.println("Lỗi khi đóng kết nối: " + e.getMessage());
         }
     }
 } 

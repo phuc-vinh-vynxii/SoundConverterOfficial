@@ -30,7 +30,7 @@ public class MergedAudioDAO {
                     int id = generatedKeys.getInt(1);
                     mergedAudio.setId(id);
                     
-                    // Add all segments
+                    // Thêm tất cả các phân đoạn
                     List<MergeSegment> segments = mergedAudio.getSegments();
                     for (int i = 0; i < segments.size(); i++) {
                         MergeSegment segment = segments.get(i);
@@ -40,7 +40,7 @@ public class MergedAudioDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error adding merged audio: " + e.getMessage());
+            System.err.println("Lỗi khi thêm audio đã trộn: " + e.getMessage());
         }
         return -1;
     }
@@ -56,7 +56,7 @@ public class MergedAudioDAO {
             pstmt.setInt(5, order);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error adding merge segment: " + e.getMessage());
+            System.err.println("Lỗi khi thêm phân đoạn trộn: " + e.getMessage());
             return false;
         }
     }
@@ -67,7 +67,7 @@ public class MergedAudioDAO {
             pstmt.setInt(1, id);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting merged audio: " + e.getMessage());
+            System.err.println("Lỗi khi xóa audio đã trộn: " + e.getMessage());
             return false;
         }
     }
@@ -83,13 +83,13 @@ public class MergedAudioDAO {
                             rs.getString("file_name"),
                             rs.getString("file_path")
                     );
-                    // Load segments
+                    // Tải các phân đoạn
                     loadMergeSegments(mergedAudio);
                     return mergedAudio;
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting merged audio: " + e.getMessage());
+            System.err.println("Lỗi khi lấy audio đã trộn: " + e.getMessage());
         }
         return null;
     }
@@ -105,12 +105,12 @@ public class MergedAudioDAO {
                         rs.getString("file_name"),
                         rs.getString("file_path")
                 );
-                // Optional: Load segments for each file
+                // Tùy chọn: Tải các phân đoạn cho mỗi file
                 // loadMergeSegments(mergedAudio);
                 mergedAudios.add(mergedAudio);
             }
         } catch (SQLException e) {
-            System.err.println("Error getting all merged audio: " + e.getMessage());
+            System.err.println("Lỗi khi lấy tất cả audio đã trộn: " + e.getMessage());
         }
         return mergedAudios;
     }
@@ -130,7 +130,7 @@ public class MergedAudioDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error loading merge segments: " + e.getMessage());
+            System.err.println("Lỗi khi tải các phân đoạn trộn: " + e.getMessage());
         }
     }
 } 

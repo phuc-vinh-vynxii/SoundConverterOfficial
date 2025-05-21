@@ -31,6 +31,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -57,6 +58,7 @@ public class MainController implements Initializable {
     @FXML private TextField mergeFilenameField;
     @FXML private Label statusLabel;
     @FXML private ProgressBar progressBar;
+    @FXML private ProgressIndicator loadingIndicator;
     
     @FXML private ComboBox<String> languageComboBox;
     @FXML private TextField segmentLengthField;
@@ -68,7 +70,7 @@ public class MainController implements Initializable {
     private MergedAudio currentMerge;
     private final ObservableList<MergeItem> mergeItems = FXCollections.observableArrayList();
     
-    // Output directory for temporary and final files
+    // Thư mục output cho file tạm và file cuối cùng
     private static final String OUTPUT_DIR = "./output/";
     
     @Override
@@ -269,9 +271,9 @@ public class MainController implements Initializable {
         updateStatus("Analyzing audio file: " + selectedFile.getFileName() + 
                      " with language: " + WhisperService.getLanguageDisplayName(selectedLanguage) +
                      (segmentLength > 0 ? ", segment length: " + segmentLength + " seconds" : ""));
-        showProgress(true);
+        showAnalysisProgress(true);
         
-        final boolean forceFinal = forceAnalyze; // For use in lambda
+        final boolean forceFinal = forceAnalyze; // Sử dụng trong lambda
         
         Task<List<AudioSegment>> task = new Task<>() {
             @Override
@@ -301,7 +303,7 @@ public class MainController implements Initializable {
                     segmentsTable.setItems(FXCollections.observableArrayList(segments));
                     segmentsTable.refresh();
                     
-                    showProgress(false);
+                    showAnalysisProgress(false);
                     updateStatus("Analysis complete: " + segments.size() + " segments found for: " + selectedFile.getFileName());
                 });
             }
@@ -309,7 +311,7 @@ public class MainController implements Initializable {
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
-                    showProgress(false);
+                    showAnalysisProgress(false);
                     showError("Failed to analyze audio: " + getException().getMessage());
                 });
             }
@@ -860,7 +862,15 @@ public class MainController implements Initializable {
     }
     
     private void showProgress(boolean show) {
-        Platform.runLater(() -> progressBar.setVisible(show));
+        Platform.runLater(() -> {
+            progressBar.setVisible(show);
+        });
+    }
+    
+    private void showAnalysisProgress(boolean show) {
+        Platform.runLater(() -> {
+            loadingIndicator.setVisible(show);
+        });
     }
     
     private void showError(String message) {
@@ -912,7 +922,7 @@ public class MainController implements Initializable {
         return WhisperService.LANG_AUTO;
     }
     
-    // Helper class for displaying merge items in the table
+    // Lớp hỗ trợ hiển thị các mục trộn trong bảng
     public static class MergeItem {
         private final int sourceFileId;
         private final String fileName;

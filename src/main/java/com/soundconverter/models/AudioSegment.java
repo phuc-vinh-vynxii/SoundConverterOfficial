@@ -3,8 +3,8 @@ package com.soundconverter.models;
 public class AudioSegment {
     private int id;
     private int fileId;
-    private int startTime; // in milliseconds
-    private int endTime;   // in milliseconds
+    private int startTime; // tính bằng mili giây
+    private int endTime;   // tính bằng mili giây
     private String text;
 
     public AudioSegment() {

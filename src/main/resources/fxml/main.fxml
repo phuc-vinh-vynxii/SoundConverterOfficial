@@ -61,13 +61,16 @@
                                     <Insets top="5" right="5" bottom="5" left="5"/>
                                 </padding>
                                 <Label text="Audio Segments:"/>
-                                <TableView fx:id="segmentsTable" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="startTimeColumn" text="Start Time" prefWidth="100"/>
-                                        <TableColumn fx:id="endTimeColumn" text="End Time" prefWidth="100"/>
-                                        <TableColumn fx:id="textColumn" text="Text" prefWidth="300"/>
-                                    </columns>
-                                </TableView>
+                                <StackPane VBox.vgrow="ALWAYS">
+                                    <TableView fx:id="segmentsTable" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="startTimeColumn" text="Start Time" prefWidth="100"/>
+                                            <TableColumn fx:id="endTimeColumn" text="End Time" prefWidth="100"/>
+                                            <TableColumn fx:id="textColumn" text="Text" prefWidth="300"/>
+                                        </columns>
+                                    </TableView>
+                                    <ProgressIndicator fx:id="loadingIndicator" progress="-1" visible="false" prefWidth="60" prefHeight="60"/>
+                                </StackPane>
                                 
                                 <HBox spacing="10" alignment="CENTER_LEFT">
                                     <padding>

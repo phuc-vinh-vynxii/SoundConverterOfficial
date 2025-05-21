@@ -1,0 +1,181 @@
+# SOUND CONVERTER - HƯỚNG DẪN CÀI ĐẶT
+
+## Yêu cầu hệ thống
+
+- Java Development Kit (JDK) 17 trở lên
+- MySQL 8.0 trở lên
+- Ít nhất 4GB RAM (khuyến nghị 8GB)
+- Ít nhất 1GB dung lượng ổ đĩa trống
+
+## 1. Cài đặt Java
+
+1. Tải JDK 17 hoặc mới hơn từ [trang chủ Oracle](https://www.oracle.com/java/technologies/downloads/) hoặc sử dụng OpenJDK
+2. Cài đặt JDK và thiết lập biến môi trường JAVA_HOME:
+   - Windows: Thiết lập biến môi trường trong System Properties > Advanced > Environment Variables
+   - Linux/Mac: Thêm `export JAVA_HOME=/path/to/jdk` vào ~/.bashrc hoặc ~/.zshrc
+3. Kiểm tra cài đặt bằng lệnh: `java -version`
+
+## 2. Cài đặt MySQL
+
+1. Tải MySQL từ [trang chủ MySQL](https://dev.mysql.com/downloads/mysql/)
+2. Cài đặt MySQL Server theo hướng dẫn của trình cài đặt
+3. Cấu hình kết nối cơ sở dữ liệu:
+   - Tạo file `config.properties` trong thư mục `src/main/resources/` (sao chép từ file `config.properties.example`)
+   - Chỉnh sửa thông tin kết nối phù hợp với cài đặt MySQL của bạn:
+
+```properties
+# Database Configuration
+db.url=jdbc:mysql://localhost:3306/soundconverter?createDatabaseIfNotExist=true
+db.user=root
+db.password=your_mysql_password
+```
+
+> **Lưu ý**: Ứng dụng sẽ tự động tạo cơ sở dữ liệu `soundconverter` và các bảng cần thiết khi khởi động lần đầu tiên.
+
+## 3. Cài đặt Maven
+
+Maven là công cụ quản lý dự án và build automation được sử dụng để xây dựng dự án Java.
+
+1. Tải Apache Maven từ [trang chủ Maven](https://maven.apache.org/download.cgi) (tải file binary zip archive)
+2. Giải nén file tải về vào thư mục bạn muốn cài đặt (ví dụ: `C:\Program Files\Apache\maven`)
+3. Thiết lập biến môi trường:
+   - Tạo biến môi trường `MAVEN_HOME` trỏ đến thư mục cài đặt Maven
+   - Thêm `%MAVEN_HOME%\bin` vào biến môi trường `Path`
+4. Kiểm tra cài đặt bằng lệnh: `mvn -version`
+
+> **Lưu ý**: Nếu bạn sử dụng IDE như IntelliJ IDEA hoặc Eclipse, Maven thường đã được tích hợp sẵn và bạn không cần cài đặt riêng.
+
+## 4. Cài đặt ứng dụng từ mã nguồn
+
+1. Clone repository về máy:
+
+```bash
+git clone https://github.com/phuc-vinh-vynxii/SoundConverterOfficial.git
+cd SoundConverterOfficial
+```
+
+2. Biên dịch dự án bằng Maven:
+
+```bash
+mvn clean package
+```
+
+3. Chuẩn bị cấu trúc thư mục để chạy:
+
+```bash
+# Tạo thư mục models và lib nếu chưa tồn tại
+mkdir -p models lib
+
+# Sao chép models từ resources vào thư mục models
+cp src/main/resources/whisper/models/ggml-base-q8_0.bin models/
+cp src/main/resources/whisper/models/ggml-tiny.en.bin models/
+
+# Sao chép whisper CLI và DLL vào thư mục lib
+cp src/main/resources/whisper/whisper-cli.exe lib/
+cp src/main/resources/whisper/*.dll lib/
+```
+
+> **Quan trọng**: Cấu trúc thư mục sau khi cài đặt cần phải là:
+>
+> ```
+> SoundConverterOfficial/
+> ├── models/
+> │   ├── ggml-base-q8_0.bin    # Model đa ngôn ngữ
+> │   └── ggml-tiny.en.bin      # Model tiếng Anh
+> ├── lib/
+> │   ├── whisper-cli.exe
+> │   ├── ggml.dll
+> │   ├── whisper.dll
+> │   └── [Các DLL khác]
+> ├── target/
+> │   └── SoundConverterOfficial-1.0-SNAPSHOT.jar
+> └── [Các thư mục và tệp khác]
+> ```
+
+## 5. Cài đặt từ file JAR
+
+1. Tải file JAR từ trang Releases của dự án
+2. Đảm bảo bạn đã cài đặt MySQL
+3. Tạo thư mục để chứa ứng dụng:
+
+```bash
+mkdir SoundConverter
+cd SoundConverter
+```
+
+4. Sao chép file JAR vào thư mục này
+5. Tạo các thư mục cần thiết:
+
+```bash
+mkdir -p src/main/resources/ffmpeg
+mkdir -p src/main/resources/whisper/models
+mkdir output
+```
+
+6. Tạo file cấu hình kết nối cơ sở dữ liệu:
+
+```bash
+mkdir -p src/main/resources
+touch src/main/resources/config.properties
+```
+
+7. Mở file `src/main/resources/config.properties` và thêm nội dung sau, chỉnh sửa thông tin kết nối phù hợp với cài đặt MySQL của bạn:
+
+```properties
+# Database Configuration
+db.url=jdbc:mysql://localhost:3306/soundconverter?createDatabaseIfNotExist=true
+db.user=root
+db.password=your_mysql_password
+
+# Application Settings
+app.name=Sound Converter
+app.version=1.0
+```
+
+8. Tải FFmpeg từ [trang chủ FFmpeg](https://ffmpeg.org/download.html) và sao chép `ffmpeg.exe` và `ffprobe.exe` vào thư mục `src/main/resources/ffmpeg`
+9. Tải Whisper CPP từ [GitHub](https://github.com/ggerganov/whisper.cpp/releases) và sao chép các file DLL và model vào thư mục `src/main/resources/whisper`
+
+## 6. Vấn đề tương thích Whisper CPP (64-bit/32-bit)
+
+Nếu bạn gặp lỗi "Invalid Memory Access" khi sử dụng tính năng phân tích AI, đây có thể là vấn đề tương thích giữa JVM và Whisper DLL:
+
+1. Kiểm tra JVM đang chạy ở chế độ 64-bit hay 32-bit:
+   ```bash
+   java -version
+   ```
+   (Kết quả sẽ hiển thị Java HotSpot 64-Bit VM nếu là 64-bit)
+
+2. Nếu JVM là 64-bit, bạn cần sử dụng Whisper DLL 64-bit:
+   - Tải source code Whisper CPP từ [GitHub](https://github.com/ggerganov/whisper.cpp)
+   - Build whisper.dll 64-bit bằng CMake:
+   ```bash
+   git clone https://github.com/ggerganov/whisper.cpp.git
+   cd whisper.cpp
+   mkdir build
+   cd build
+   cmake ..
+   cmake --build . --config Release
+   ```
+   - Sao chép file whisper.dll và các file DLL liên quan vào thư mục `lib/`
+
+3. Tải model Whisper phù hợp từ [Hugging Face](https://huggingface.co/ggerganov/whisper.cpp/tree/main) và đặt vào thư mục `models/`
+
+## 7. Xử lý sự cố cài đặt
+
+### Lỗi kết nối cơ sở dữ liệu
+
+- Kiểm tra MySQL đã được khởi động
+- Kiểm tra thông tin kết nối trong file `src/main/resources/config.properties` đã chính xác
+- Đảm bảo người dùng MySQL có đủ quyền để tạo cơ sở dữ liệu và bảng
+
+### Lỗi khi biên dịch bằng Maven
+
+- Kiểm tra Maven đã được cài đặt đúng cách
+- Kiểm tra kết nối Internet để tải các dependency
+- Xóa thư mục `.m2/repository` để xóa cache Maven và thử lại
+
+### Lỗi sau khi build và chạy từ file JAR
+
+- Kiểm tra cấu trúc thư mục đã đúng chưa
+- Đảm bảo các file whisper.dll và model đã được sao chép vào đúng vị trí
+- Kiểm tra đường dẫn không chứa ký tự tiếng Việt hoặc ký tự đặc biệt 
