@@ -201,7 +201,8 @@ public class AudioProcessingService {
             }
             
             // Sử dụng đường dẫn output do người dùng chỉ định trực tiếp
-            
+            System.out.println("File được tạo ở: " + fileListFile.getAbsolutePath());
+            System.out.println("Nội dung file danh sách:\n" + fileList.toString());
             // Trộn bằng FFmpeg
             List<String> mergeCommand = new ArrayList<>();
             mergeCommand.add(FFMPEG_EXE);
@@ -231,31 +232,33 @@ public class AudioProcessingService {
             }
             
             try {
-                boolean completed = process.waitFor(60, TimeUnit.SECONDS);
-                if (!completed) {
-                    process.destroyForcibly();
-                    throw new IOException("Quá trình FFmpeg trộn đã hết thời gian chờ");
-                }
-                
-                int exitCode = process.exitValue();
+                int exitCode = process.waitFor();
                 if (exitCode != 0) {
                     throw new IOException("Quá trình FFmpeg trộn thất bại với mã lỗi " + exitCode + ":\n" + output);
                 }
+                
+                // int exitCode = process.exitValue();
+                File outputFile = new File(outputPath);
+                if (!outputFile.exists() || outputFile.length() == 0) {
+                    throw new IOException("File chưa được tạo hoặc rỗng: " + outputPath);
+                }
+
+                return outputPath;
             } catch (InterruptedException e) {
                 throw new IOException("Quá trình FFmpeg trộn bị gián đoạn: " + e.getMessage());
             }
             
-            // Xác minh file output đã được tạo
-            File mergedFile = new File(outputPath);
-            if (!mergedFile.exists()) {
-                throw new IOException("Không thể trộn các đoạn - file output không được tạo");
-            }
+            // // Xác minh file output đã được tạo
+            // File mergedFile = new File(outputPath);
+            // if (!mergedFile.exists()) {
+            //     throw new IOException("Không thể trộn các đoạn - file output không được tạo");
+            // }
             
-            if (mergedFile.length() == 0) {
-                throw new IOException("Không thể trộn các đoạn - file output rỗng");
-            }
+            // if (mergedFile.length() == 0) {
+            //     throw new IOException("Không thể trộn các đoạn - file output rỗng");
+            // }
             
-            return outputPath;
+            // return outputPath;
         } finally {
             // Dọn dẹp file tạm
             cleanupTempDir(tempDir.getAbsolutePath());
