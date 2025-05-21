@@ -71,7 +71,20 @@ db.password=your_mysql_password
 
 > **Lưu ý**: Ứng dụng sẽ tự động tạo cơ sở dữ liệu `soundconverter` và các bảng cần thiết khi khởi động lần đầu tiên. Bạn không cần phải tạo thủ công cơ sở dữ liệu hoặc các bảng.
 
-### 3. Cài đặt ứng dụng từ mã nguồn
+### 3. Cài đặt Maven
+
+Maven là công cụ quản lý dự án và build automation được sử dụng để xây dựng và quản lý dự án Java. Để cài đặt Maven:
+
+1. Tải Apache Maven từ [trang chủ Maven](https://maven.apache.org/download.cgi) (tải file binary zip archive)
+2. Giải nén file tải về vào thư mục bạn muốn cài đặt (ví dụ: `C:\Program Files\Apache\maven`)
+3. Thiết lập biến môi trường:
+   - Tạo biến môi trường `MAVEN_HOME` trỏ đến thư mục cài đặt Maven
+   - Thêm `%MAVEN_HOME%\bin` vào biến môi trường `Path`
+4. Kiểm tra cài đặt bằng lệnh: `mvn -version`
+
+Nếu bạn sử dụng IDE như IntelliJ IDEA hoặc Eclipse, Maven thường đã được tích hợp sẵn và bạn không cần cài đặt riêng.
+
+### 4. Cài đặt ứng dụng từ mã nguồn
 
 1. Clone repository về máy:
 
@@ -86,13 +99,45 @@ cd SoundConverterOfficial
 mvn clean package
 ```
 
-3. Chạy ứng dụng:
+3. Chuẩn bị cấu trúc thư mục để chạy:
+
+```bash
+# Tạo thư mục models và lib nếu chưa tồn tại
+mkdir -p models lib
+
+# Sao chép models từ resources vào thư mục models
+cp src/main/resources/whisper/models/ggml-base-q8_0.bin models/
+cp src/main/resources/whisper/models/ggml-tiny.en.bin models/
+
+# Sao chép whisper CLI và DLL vào thư mục lib
+cp src/main/resources/whisper/whisper-cli.exe lib/
+cp src/main/resources/whisper/*.dll lib/
+```
+
+4. Chạy ứng dụng:
 
 ```bash
 java -jar target/SoundConverterOfficial-1.0-SNAPSHOT.jar
 ```
 
-### 4. Cài đặt từ file JAR
+> **Quan trọng**: Cấu trúc thư mục cần phải là:
+>
+> ```
+> SoundConverterOfficial/
+> ├── models/
+> │   ├── ggml-base-q8_0.bin    # Model đa ngôn ngữ
+> │   └── ggml-tiny.en.bin      # Model tiếng Anh
+> ├── lib/
+> │   ├── whisper-cli.exe
+> │   ├── ggml.dll
+> │   ├── whisper.dll
+> │   └── [Các DLL khác]
+> ├── target/
+> │   └── SoundConverterOfficial-1.0-SNAPSHOT.jar
+> └── [Các thư mục và tệp khác]
+> ```
+
+### 5. Cài đặt từ file JAR
 
 1. Tải file JAR từ trang Releases của dự án
 2. Đảm bảo bạn đã cài đặt MySQL
@@ -243,6 +288,46 @@ private static final String MODEL_PATH_MULTILINGUAL = "./models/ggml-base-q8_0.b
 - Đảm bảo đường dẫn lưu file không chứa ký tự đặc biệt
 - Kiểm tra đủ quyền ghi vào thư mục đích
 - Xem log lỗi trong console để biết thêm chi tiết
+
+### Lỗi sau khi build và chạy từ file JAR
+
+Khi sử dụng Maven để build project (`mvn clean package`) rồi chạy file JAR, có thể gặp một số lỗi phổ biến, đặc biệt là lỗi "Invalid Memory Access" khi phân tích âm thanh:
+
+1. **Thiếu thư mục model và library**:
+
+   - File JAR sẽ tìm model ở đường dẫn `./models/` tương đối với vị trí chạy JAR
+   - Whisper CLI sẽ được tìm ở đường dẫn `./lib/whisper-cli.exe`
+
+2. **Giải pháp**: Sau khi build bằng Maven, thực hiện các bước sau:
+
+   ```bash
+   # Tạo cấu trúc thư mục cần thiết
+   mkdir -p models lib
+
+   # Sao chép models
+   cp src/main/resources/whisper/models/ggml-base-q8_0.bin models/
+   cp src/main/resources/whisper/models/ggml-tiny.en.bin models/
+
+   # Sao chép whisper CLI và thư viện
+   cp src/main/resources/whisper/whisper-cli.exe lib/
+   cp src/main/resources/whisper/*.dll lib/
+   ```
+
+3. **Vấn đề tương thích 32-bit/64-bit**:
+
+   - Đảm bảo JVM đang chạy ở chế độ 64-bit: `java -version` nên hiển thị 64-bit
+   - Whisper DLL và models phải là phiên bản 64-bit nếu dùng JVM 64-bit
+   - Lỗi "Invalid Memory Access" thường xuất hiện khi có sự không tương thích giữa JVM và DLL
+
+4. **Kiểm tra lỗi khi chạy**:
+
+   - Kiểm tra file log hoặc output của console
+   - Đảm bảo tất cả đường dẫn không chứa ký tự tiếng Việt hoặc ký tự đặc biệt
+   - Sử dụng lệnh `java -jar SoundConverterOfficial-1.0-SNAPSHOT.jar` từ thư mục gốc của project
+
+5. **Kiểm tra đường dẫn tìm kiếm model**:
+   - Mặc định ứng dụng tìm file model ở `./models/`
+   - Đảm bảo tên file model khớp chính xác với thiết lập trong `WhisperService.java`
 
 ## Các phím tắt và thao tác nhanh
 
